@@ -1,0 +1,79 @@
+>>> user1 = User.objects.create_user('Анастасия')
+>>> user2 = User.objects.create_user('Артур')
+>>> user1
+<User: Анастасия>
+>>> author1 = Author.objects.create(user=user1)
+>>> author2 = Author.objects.create(user=user2)
+>>> author1
+<Author: Author object (1)>
+>>> category1 = Category.objects.create(name='Музыка')
+>>> category2 = Category.objects.create(name='Путешествия')
+>>> category3 = Category.objects.create(name='Еда')
+>>> category4 = Category.objects.create(name='Наука') 
+>>> category2
+<Category: Category object (2)>
+>>> post1 = Post.objects.create(author=author1, post_type='PA', title='Как еврейская культура повлияла на развитие джаза: от Клезмера до Гершвина', text='Джаз — это музыка, построенная на импровизации, синкопах и эмоциональной выразительности. Но мало кто знает, что в основе джаза лежат не только афроамериканские традиции. Огромное влияние на его формирование оказала еврейская культура, в частности музыка клезмер. В этой статье мы разберемся, как еврейская народная музыка из Восточной Европы стала неотъемлемой частью джазового наследия.')
+>>> post1
+<Post: Post object (1)>
+>>> post2 = Post.objects.create(author=author2, post_type='PA', title='Кухня европейского Средневековья: Франция', text='Сколько пива каждый день должны были выпивать монахи?')
+>>> post3 = Post.objects.create(author=author1, post_type='NE', title='Китай продлит безвизовый режим с Россией до конца 2027 года', text='Россияне могут приезжать в Китай без визы на срок до 30 дней для туризма, ведения бизнеса, посещения друзей и родственников, участия в программах культурного обмена. Еще виза не нужна для транзита.')
+>>> PostCategory.objects.create(post=post1, category=category1)
+<PostCategory: PostCategory object (1)>
+>>> PostCategory.objects.create(post=post1, category=category4)
+<PostCategory: PostCategory object (2)>
+>>> PostCategory.objects.create(post=post2, category=category3)
+<PostCategory: PostCategory object (3)>
+>>> PostCategory.objects.create(post=post3, category=category2)
+<PostCategory: PostCategory object (4)>
+>>> comment1 = Comment.objects.create(post=post1, user=user2, text='Люблю джаз!')
+>>> comment2 = Comment.objects.create(post=post2, user=user1, text='Очень интересная статья!')
+>>> comment3 = Comment.objects.create(post=post2, user=user2, text='Спасибо, коллега!')
+>>> comment4 = Comment.objects.create(post=post3, user=user2, text='Пора в Китай')
+>>> post1.like()
+>>> post1.like()
+>>> post1.like()
+>>> post2.like()
+>>> post1.dislike()
+>>> post2.dislike()
+>>> post2.like()
+>>> post2.like()
+>>> post2.like()
+>>> post2.like()
+>>> post3.like()
+>>> post3.like()
+>>> post3.like()
+>>> post3.dislike()
+>>> comment1.like()
+>>> comment2.like()
+>>> comment3.like()
+>>> comment4.like()
+>>> comment1.dislike()
+>>> comment1.like()
+>>> comment3.like()
+>>> comment2.like()
+>>> comment2.dislike()
+>>> author1.update_rating()
+>>> author2.update_rating()
+>>> best_author = Author.objects.order_by('rating').first() 
+>>> print(f"Лучший автор: {best_author.user.username}, рейтинг: {best_author.rating}")
+Лучший автор: Анастасия, рейтинг: 15
+>>> best_post = Post.objects.order_by('rating').first() 
+>>> print(f"Дата лучшего поста: {best_post.time_in}")
+Дата лучшего поста: 2026-05-20 20:25:53.578238+00:00
+>>> print(f"Автор лучшего поста: {best_post.author.user.username}")
+Автор лучшего поста: Анастасия
+>>> print(f"Рейтинг лучшего поста: {best_post.rating}")
+Рейтинг лучшего поста: 2
+>>> print(f"Заголовок лучшего поста: {best_post.title}")
+Заголовок лучшего поста: Как еврейская культура повлияла на развитие джаза: от Клезмера до Гершвина
+>>> print(f"Превью лучшей статьи: {best_post.preview()}")
+Превью лучшей статьи: Джаз — это музыка, построенная на импровизации, синкопах и эмоциональной выразительности. Но мало кто знает, что в основе дж...
+>>> comments = Comment.objects.filter(post=best_post).order_by('rating') 
+>>> for i in comments: print(f"Время: {i.time_in}, Пользователь: {i.user.username}, Рейтинг: {i.rating}, Текст комментария: {i.text}") 
+... 
+Traceback (most recent call last):
+  File "<console>", line 1, in <module>
+AttributeError: 'Comment' object has no attribute 'time_in'. Did you mean: 'time_im'?
+>>> for i in comments: print(f"Время: {i.time_im}, Пользователь: {i.user.username}, Рейтинг: {i.rating}, Текст комментария: {i.text}") 
+... 
+Время: 2026-05-20 20:27:07.273866+00:00, Пользователь: Артур, Рейтинг: 1, Текст комментария: Люблю джаз!
