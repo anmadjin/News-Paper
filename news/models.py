@@ -1,6 +1,6 @@
 from django.db import models
 from django.conf import settings
-from news.resource import POST_TYPES, paper, news
+from .resource import POST_TYPES, paper, news
 from django.db.models import Sum
 from datetime import datetime
 from django.utils import timezone
@@ -44,6 +44,9 @@ class Post(models.Model):
             return self.text[:124] + '...'
         else:
             return self.text
+
+    def __str__(self):
+        return f'{self.title}: {self.text}'
 
 
 class PostCategory(models.Model):
