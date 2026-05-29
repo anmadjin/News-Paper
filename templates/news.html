@@ -25,7 +25,7 @@ News
            <tr>
                <td><a href="/news/{{ new.id }}/">{{ new.title|censor }}</a></td>
                <td>{{ new.time_in|date:"d.m.Y" }}</td>
-               <td>{{ new.text|truncatewords:20|censor }}</td>
+               <td>{{ new.text|truncatechars:20|censor }}</td>
            </tr>
            {% endfor %}
 
@@ -33,4 +33,27 @@ News
    {% else %}
        <h2>Новостей нет!</h2>
    {% endif %}
+
+   {% if page_obj.has_previous %}
+       <a href="?{% url_replace page=1 %}">1</a>
+       {% if page_obj.previous_page_number != 1 %}
+           ...
+           <a href="?{% url_replace page=page_obj.previous_page_number %}">{{ page_obj.previous_page_number }}</a>
+       {% endif %}
+   {% endif %}
+
+   {{ page_obj.number }}
+
+   {% if page_obj.has_next %}
+       <a href="?{% url_replace page=page_obj.next_page_number %}">{{ page_obj.next_page_number }}</a>
+       {% if paginator.num_pages != page_obj.next_page_number %}
+           ...
+           <a href="?{% url_replace page=page_obj.paginator.num_pages %}">{{ page_obj.paginator.num_pages }}</a>
+       {% endif %}
+   {% endif %}
+   <div style="margin-bottom: 20px;">
+       <a href="/news/create/" class="btn">&#10133 Создать новость</a>
+       <a href="/articles/create/" class="btn">&#10133 Создать статью</a>
+       <a href="/news/search/" class="btn">&#128269 Поиск</a>
+   </div>
 {% endblock content %}

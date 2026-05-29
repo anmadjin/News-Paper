@@ -1,12 +1,15 @@
 {% extends 'flatpages/default.html' %}
 
+{% load custom_filters %}
+{% load custom_tags %}
+
 {% block title %}
-{{ new.title }}
+{{ new.title|censor }}
 {% endblock title %}
 
 
 {% block content %}
-<h1>{{ new.title }}</h1>
+<h1>{{ new.title|censor }}</h1>
 
    <p><strong>Дата публикации:</strong> {{ new.time_in|date:"d.m.Y" }}</p>
 
@@ -16,8 +19,16 @@
 
    <div>
        <h3>Текст статьи:</h3>
-       <p>{{ new.text }}</p>
+       <p>{{ new.text|censor }}</p>
    </div>
-
-   <a href="/news/">← Назад ко всем новостям</a>
+   <div style="margin-top: 30px;">
+       {% if new.post_type == 'NE' %}
+           <a href="/news/{{ new.id }}/edit/" class="btn">&#x270D Редактировать новость</a>
+           <a href="/news/{{ new.id }}/delete/ " class="btn">&#10060 Удалить новость</a>
+       {% else %}
+           <a href="/articles/{{ new.id }}/edit/" class="btn">&#x270D Редактировать статью</a>
+           <a href="/articles/{{ new.id }}/delete/" class="btn">&#10060️ Удалить статью</a>
+       {% endif %}
+   </div>
+<a href="/news/">← Назад ко всем новостям</a>
 {% endblock content %}
