@@ -1,11 +1,11 @@
 from datetime import datetime
-from django.http import HttpResponseRedirect
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
-from django.shortcuts import render, HttpResponseRedirect
 from .forms import PostForm, PostForm2
 from .models import Post
 from .filters import PostFilter
 from django.urls import reverse_lazy
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.shortcuts import redirect
 
 class PostsList(ListView):
     model = Post
@@ -18,6 +18,10 @@ class PostsList(ListView):
         context = super().get_context_data(**kwargs)
         context['time_now'] = datetime.utcnow()
         context['next_event'] = "В четверг пройдет ежегодная встреча авторов!"
+        if self.request.user.is_authenticated:
+            context['is_it_author'] = not self.request.user.groups.filter(name='authors').exists()
+        else:
+            context['is_it_author'] = False
         return context
 
     def get_queryset(self):
@@ -55,6 +59,9 @@ class NewsCreate(CreateView):
     model = Post
     template_name = 'new_add.html'
 
+    def handle_no_permission(self):
+        return redirect('/news/')
+
     def form_valid(self, form):
         post = form.save()
         post.post_type = 'NE'
@@ -64,10 +71,13 @@ class NewsCreate(CreateView):
         return reverse_lazy('post_detail', args=[self.object.id])
 
 
-class NewsUpdate(UpdateView):
+class NewsUpdate(LoginRequiredMixin, UpdateView):
     form_class = PostForm2
     model = Post
     template_name = 'new_edit.html'
+
+    def handle_no_permission(self):
+        return redirect('/news/')
 
     def get_success_url(self):
         return reverse_lazy('post_detail', args=[self.object.id])
@@ -78,11 +88,17 @@ class NewsDelete(DeleteView):
     template_name = 'delete.html'
     success_url = reverse_lazy('posts')
 
+    def handle_no_permission(self):
+        return redirect('/news/')
+
 
 class PaperCreate(CreateView):
     form_class = PostForm
     model = Post
     template_name = 'new_add.html'
+
+    def handle_no_permission(self):
+        return redirect('/news/')
 
     def form_valid(self, form):
         post = form.save()
@@ -93,10 +109,13 @@ class PaperCreate(CreateView):
         return reverse_lazy('post_detail', args=[self.object.id])
 
 
-class PaperUpdate(UpdateView):
+class PaperUpdate(LoginRequiredMixin, UpdateView):
     form_class = PostForm2
     model = Post
     template_name = 'new_edit.html'
+
+    def handle_no_permission(self):
+        return redirect('/news/')
 
     def get_success_url(self):
         return reverse_lazy('post_detail', args=[self.object.id])
@@ -106,6 +125,9 @@ class PaperDelete(DeleteView):
     model = Post
     template_name = 'delete.html'
     success_url = reverse_lazy('posts')
+
+    def handle_no_permission(self):
+        return redirect('/news/')
 
 #def create_post(request):
 #    form = PostForm()

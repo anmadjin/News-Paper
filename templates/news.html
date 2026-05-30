@@ -12,6 +12,16 @@ News
    <h3>Всего новостей: {{ news|length }}</h3>
    <h3>{% current_time '%b %d %Y' %}</h3>
    <h3> {{ next_event|default_if_none:"Скоро анонсируем встречу авторов!" }} </h3>
+
+{% if user.is_authenticated %}
+{% if not user.groups.all.0.name == 'authors' %}
+    <button>
+    <div>
+        {% if is_it_author %} <a href="{% url 'become_author' %}">Стать автором</a>{% endif %}
+    </div>
+    </button>
+{% endif %}
+{% endif %}
    <hr>
    {% if news %}
        <table>
