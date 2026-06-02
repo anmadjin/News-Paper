@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Новые статьи за неделю на портале News Portal</title>
+</head>
+<body>
+    <h2>Привет!</h2>
+    <p>В категории <strong>"{{ category.name }}"</strong> за последнюю неделю появились новые статьи:</p>
+
+    <ul>
+        {% for post in posts %}
+            <li>
+                <a href="http://127.0.0.1:8000/news/{{ post.id }}/">
+                    <strong>{{ post.title }}</strong>
+                </a>
+                <br>
+                <small>{{ post.time_in|date:"d.m.Y H:i" }} | Автор: {{ post.author.user.username }}</small>
+                <p>{{ post.text|truncatewords:30 }}</p>
+            </li>
+        {% endfor %}
+    </ul>
+    <hr>
+</body>
+</html>

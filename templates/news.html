@@ -29,6 +29,7 @@ News
                <td>Заголовок</td>
                <td>Дата публикации</td>
                <td>Текст</td>
+               <td>Категория</td>
            </tr>
 
            {% for new in news %}
@@ -36,6 +37,11 @@ News
                <td><a href="/news/{{ new.id }}/">{{ new.title|censor }}</a></td>
                <td>{{ new.time_in|date:"d.m.Y" }}</td>
                <td>{{ new.text|truncatechars:20|censor }}</td>
+               <td>
+                   {% for cat in new.category.all %}
+                       <a href="{% url 'category_posts' cat.id %}">{{ cat.name }}</a>{% if not forloop.last %}, {% endif %}
+                   {% endfor %}
+               </td>
            </tr>
            {% endfor %}
 

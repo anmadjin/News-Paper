@@ -2,6 +2,15 @@
 
 {% block content %}
 <h1>Создание поста</h1>
+{% if messages %}
+    <div style="margin-bottom: 20px;">
+        {% for message in messages %}
+            <div style="padding: 10px; background-color: #efc4c7; color: #9e1f24; border-radius: 5px; margin-bottom: 10px;">
+                {{ message }}
+            </div>
+        {% endfor %}
+    </div>
+{% endif %}
 <hr>
 <form action="" method="post">
     {% csrf_token %}

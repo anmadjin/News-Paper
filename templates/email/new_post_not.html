@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Новый пост</title>
+</head>
+<body>
+    <h2>Привет, {{ username }}!</h2>
+    <p>В твоем любимом разделе появился новый пост:</p>
+
+    <h3>{{ post.title }}</h3>
+    <p>{{ post.text|truncatewords:50 }}</p>
+
+    <a href="http://127.0.0.1:8000/news/{{ post.id }}/">
+        Читать полностью →
+    </a>
+
+    <hr>
+    <p style="color: gray;">С уважением, команда News Portal</p>
+</body>
+</html>

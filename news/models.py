@@ -4,6 +4,7 @@ from .resource import POST_TYPES, paper, news
 from django.db.models import Sum
 from datetime import datetime
 from django.utils import timezone
+from django.contrib.auth.models import User
 
 
 class Author(models.Model):
@@ -23,9 +24,14 @@ class Author(models.Model):
 
 class Category(models.Model):
     name = models.CharField(max_length=255, unique=True)
-
+    subscribers = models.ManyToManyField(
+        User,
+        blank=True,
+        related_name='subscribed_categories'
+    )
     def __str__(self):
         return self.name
+
 
 class Post(models.Model):
 
