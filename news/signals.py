@@ -8,6 +8,9 @@ from datetime import timedelta
 from django.utils import timezone
 from django.core.mail import send_mail
 from django.contrib.auth.models import User
+from .tasks import send_not_about_new_post
+from sign.tasks import send_welcome_email_task
+
 
 
 @receiver(post_save, sender=Post)
@@ -98,3 +101,14 @@ def send_welcome_email(sender, instance, created, **kwargs):
             recipient_list=[instance.email],
             html_message=html_content,
         )
+
+@receiver(post_save, sender=Post)
+def notify_subscribers(sender, instance, created, **kwargs):
+    if created:
+        send_not_about_new_post.delay(instance.id)
+
+
+@receiver(post_save, sender=User)
+def send_welcome_email(sender, instance, created, **kwargs):
+    if created:
+        send_welcome_email_task.delay(instance.id)
