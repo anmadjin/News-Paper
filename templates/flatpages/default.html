@@ -11,6 +11,9 @@
         <link href="{% static 'css/styles.css' %}" rel="stylesheet" />
     </head>
     <body>
+        {% load cache %}
+
+        {% cache 5400 navbar user.is_authenticated %}
         <nav class="navbar navbar-expand-lg navbar-dark bg-dark static-top">
             <div class="container">
                 <a class="navbar-brand" href="/news/">News Portal</a>
@@ -58,6 +61,7 @@
                 </div>
             </div>
         </nav>
+        {% endcache %}
 
         <div class="container">
             <div class="row">

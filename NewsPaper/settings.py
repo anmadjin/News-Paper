@@ -23,9 +23,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-(vfkiqfnkw0flq%r=ar2$$g6+cyd7jx2_9141y^2*29$kd@tyd'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost', 'testserver']
 
 
 # Application definition
@@ -142,6 +142,9 @@ STATICFILES_DIRS = [
     BASE_DIR / "static"
 ]
 
+ADMINS = [
+    ('admin', 'admin@mfc-bpe.ru'),
+]
 LOGIN_URL = 'sign/login/'
 LOGIN_REDIRECT_URL = '/news/'
 LOGOUT_REDIRECT_URL = '/news/'
@@ -170,3 +173,132 @@ CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TIMEZONE = TIME_ZONE
 CELERY_BEAT_SCHEDULE = {}
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
+        'LOCATION': os.path.join(BASE_DIR, 'cache_files'),
+    }
+}
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        # консоль (общий)
+        'console': {
+            'format': '%(asctime)s %(levelname)s %(message)s',
+            'datefmt': '%Y-%m-%d %H:%M:%S',
+        },
+        # консоль (WARNING и выше)
+        'console_warning': {
+            'format': '%(asctime)s %(levelname)s %(pathname)s %(message)s',
+            'datefmt': '%Y-%m-%d %H:%M:%S',
+        },
+        # консоль (ERROR и CRITICAL с exc_info)
+        'console_error': {
+            'format': '%(asctime)s %(levelname)s %(pathname)s %(message)s\n%(exc_info)s',
+            'datefmt': '%Y-%m-%d %H:%M:%S',
+        },
+        # для general.log
+        'general': {
+            'format': '%(asctime)s %(levelname)s %(module)s %(message)s',
+            'datefmt': '%Y-%m-%d %H:%M:%S',
+        },
+        # для errors.log
+        'errors': {
+            'format': '%(asctime)s %(levelname)s %(pathname)s %(message)s\n%(exc_info)s',
+            'datefmt': '%Y-%m-%d %H:%M:%S',
+        },
+        # для security.log
+        'security': {
+            'format': '%(asctime)s %(levelname)s %(module)s %(message)s',
+            'datefmt': '%Y-%m-%d %H:%M:%S',
+        },
+        # для email
+        'email': {
+            'format': '%(asctime)s %(levelname)s %(pathname)s %(message)s',
+            'datefmt': '%Y-%m-%d %H:%M:%S',
+        },
+    },
+    'filters': {
+        'require_debug_true': {
+            '()': 'django.utils.log.RequireDebugTrue',
+        },
+        'require_debug_false': {
+            '()': 'django.utils.log.RequireDebugFalse',
+        },
+    },
+    'handlers': {
+        # для консоли (только при DEBUG=True)
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+            'formatter': 'console',
+            'filters': ['require_debug_true'],
+        },
+        # для general.log (только при DEBUG=False)
+        'general_file': {
+            'level': 'INFO',
+            'class': 'logging.FileHandler',
+            'filename': BASE_DIR / 'logs' / 'general.log',
+            'formatter': 'general',
+        },
+        # для errors.log
+        'errors_file': {
+            'level': 'ERROR',
+            'class': 'logging.FileHandler',
+            'filename': BASE_DIR / 'logs' / 'errors.log',
+            'formatter': 'errors',
+        },
+        # для security.log
+        'security_file': {
+            'level': 'INFO',
+            'class': 'logging.FileHandler',
+            'filename': BASE_DIR / 'logs' / 'security.log',
+            'formatter': 'security',
+        },
+        # для отправки на почту (при DEBUG=False)
+        'mail_admins': {
+            'level': 'ERROR',
+            'class': 'django.utils.log.AdminEmailHandler',
+            'formatter': 'email',
+        },
+    },
+    'loggers': {
+        # основной
+        'django': {
+            'handlers': ['console', 'general_file'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+        # для ошибок запросов
+        'django.request': {
+            'handlers': ['errors_file', 'mail_admins'],
+            'level': 'ERROR',
+            'propagate': False,
+        },
+        # для ошибок сервера
+        'django.server': {
+            'handlers': ['errors_file', 'mail_admins'],
+            'level': 'ERROR',
+            'propagate': False,
+        },
+        # для ошибок шаблонов
+        'django.template': {
+            'handlers': ['errors_file'],
+            'level': 'ERROR',
+            'propagate': False,
+        },
+        # для ошибок базы данных
+        'django.db.backends': {
+            'handlers': ['errors_file'],
+            'level': 'ERROR',
+            'propagate': False,
+        },
+        # для безопасности
+        'django.security': {
+            'handlers': ['security_file'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+    },
+}

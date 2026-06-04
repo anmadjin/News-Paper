@@ -2,74 +2,87 @@
 
 {% load custom_filters %}
 {% load custom_tags %}
+{% load cache %}
 
 {% block title %}
 News
 {% endblock title %}
 
 {% block content %}
-   <h1>Все новости</h1>
-   <h3>Всего новостей: {{ news|length }}</h3>
-   <h3>{% current_time '%b %d %Y' %}</h3>
-   <h3> {{ next_event|default_if_none:"Скоро анонсируем встречу авторов!" }} </h3>
+    {% cache 600 news_header user.is_authenticated user.groups.all.0.name %}
+    <h1>Все новости</h1>
+    <h3>Всего новостей: {{ news|length }}</h3>
+    <h3>{% current_time '%b %d %Y' %}</h3>
+    <h3>{{ next_event|default_if_none:"Скоро анонсируем встречу авторов!" }}</h3>
 
-{% if user.is_authenticated %}
-{% if not user.groups.all.0.name == 'authors' %}
-    <button>
-    <div>
-        {% if is_it_author %} <a href="{% url 'become_author' %}">Стать автором</a>{% endif %}
+    {% if user.is_authenticated %}
+        {% if not user.groups.all.0.name == 'authors' %}
+            <button>
+                <div>
+                    {% if is_it_author %} <a href="{% url 'become_author' %}">Стать автором</a>{% endif %}
+                </div>
+            </button>
+        {% endif %}
+    {% endif %}
+    {% endcache %}
+
+    <hr>
+
+    {% if news %}
+        <table border="1" cellpadding="5">
+            <thead>
+                <tr>
+                    <th>Заголовок</th>
+                    <th>Дата публикации</th>
+                    <th>Текст</th>
+                    <th>Категория</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for new in news %}
+                <tr>
+                    <td><a href="/news/{{ new.id }}/">{{ new.title|censor }}</a></td>
+                    <td>{{ new.time_in|date:"d.m.Y" }}</td>
+                    <td>{{ new.text|truncatechars:20|censor }}</td>
+                    <td>
+                        {% for cat in new.category.all %}
+                            <a href="{% url 'category_posts' cat.id %}">{{ cat.name }}</a>{% if not forloop.last %}, {% endif %}
+                        {% endfor %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <h2>Новостей нет!</h2>
+    {% endif %}
+
+    {% cache 1200 pagination page_obj.number paginator.num_pages %}
+    {% if page_obj.has_previous %}
+        <a href="?{% url_replace page=1 %}">1</a>
+        {% if page_obj.previous_page_number != 1 %}
+            ...
+            <a href="?{% url_replace page=page_obj.previous_page_number %}">{{ page_obj.previous_page_number }}</a>
+        {% endif %}
+    {% endif %}
+
+    {{ page_obj.number }}
+
+    {% if page_obj.has_next %}
+        <a href="?{% url_replace page=page_obj.next_page_number %}">{{ page_obj.next_page_number }}</a>
+        {% if paginator.num_pages != page_obj.next_page_number %}
+            ...
+            <a href="?{% url_replace page=page_obj.paginator.num_pages %}">{{ page_obj.paginator.num_pages }}</a>
+        {% endif %}
+    {% endif %}
+    {% endcache %}
+
+    {% cache 1200 action_buttons %}
+    <div style="margin-bottom: 20px;">
+        <a href="/news/create/" class="btn">➕ Создать новость</a>
+        <a href="/articles/create/" class="btn">📝 Создать статью</a>
+        <a href="/news/search/" class="btn">🔍 Поиск</a>
     </div>
-    </button>
-{% endif %}
-{% endif %}
-   <hr>
-   {% if news %}
-       <table>
-           <tr>
-               <td>Заголовок</td>
-               <td>Дата публикации</td>
-               <td>Текст</td>
-               <td>Категория</td>
-           </tr>
+    {% endcache %}
 
-           {% for new in news %}
-           <tr>
-               <td><a href="/news/{{ new.id }}/">{{ new.title|censor }}</a></td>
-               <td>{{ new.time_in|date:"d.m.Y" }}</td>
-               <td>{{ new.text|truncatechars:20|censor }}</td>
-               <td>
-                   {% for cat in new.category.all %}
-                       <a href="{% url 'category_posts' cat.id %}">{{ cat.name }}</a>{% if not forloop.last %}, {% endif %}
-                   {% endfor %}
-               </td>
-           </tr>
-           {% endfor %}
-
-       </table>
-   {% else %}
-       <h2>Новостей нет!</h2>
-   {% endif %}
-
-   {% if page_obj.has_previous %}
-       <a href="?{% url_replace page=1 %}">1</a>
-       {% if page_obj.previous_page_number != 1 %}
-           ...
-           <a href="?{% url_replace page=page_obj.previous_page_number %}">{{ page_obj.previous_page_number }}</a>
-       {% endif %}
-   {% endif %}
-
-   {{ page_obj.number }}
-
-   {% if page_obj.has_next %}
-       <a href="?{% url_replace page=page_obj.next_page_number %}">{{ page_obj.next_page_number }}</a>
-       {% if paginator.num_pages != page_obj.next_page_number %}
-           ...
-           <a href="?{% url_replace page=page_obj.paginator.num_pages %}">{{ page_obj.paginator.num_pages }}</a>
-       {% endif %}
-   {% endif %}
-   <div style="margin-bottom: 20px;">
-       <a href="/news/create/" class="btn">&#10133 Создать новость</a>
-       <a href="/articles/create/" class="btn">&#10133 Создать статью</a>
-       <a href="/news/search/" class="btn">&#128269 Поиск</a>
-   </div>
 {% endblock content %}

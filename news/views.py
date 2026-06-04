@@ -13,6 +13,7 @@ from django.shortcuts import get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.core.exceptions import ValidationError
+from django.core.cache import cache
 
 
 class PostsList(ListView):
@@ -41,6 +42,15 @@ class PostDetail(DetailView):
     model = Post
     template_name = 'new.html'
     context_object_name = 'new'
+
+    def get_object(self, *args, **kwargs):
+        cache_key = f'post-{self.kwargs["pk"]}'
+        obj = cache.get(cache_key)
+        if obj is None:
+            obj = super().get_object(*args, **kwargs)
+            cache.set(cache_key, obj)
+
+        return obj
 
 
 class PostsSearch(ListView):

@@ -5,6 +5,7 @@ from django.db.models import Sum
 from datetime import datetime
 from django.utils import timezone
 from django.contrib.auth.models import User
+from django.core.cache import cache
 
 
 class Author(models.Model):
@@ -57,8 +58,17 @@ class Post(models.Model):
         else:
             return self.text
 
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        cache.delete(f'post-{self.pk}')
+
+    def delete(self, *args, **kwargs):
+        cache.delete(f'post-{self.pk}')
+        super().delete(*args, **kwargs)
+
     def __str__(self):
         return f'{self.title}: {self.text}'
+
 
 
 class PostCategory(models.Model):

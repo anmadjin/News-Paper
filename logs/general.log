@@ -1,0 +1,5 @@
+2026-06-05 00:21:51 INFO autoreload Watching for file changes with StatReloader
+2026-06-05 00:28:46 INFO autoreload C:\project_new\NewsPaper\NewsPaper\settings.py changed, reloading.
+2026-06-05 00:32:01 INFO autoreload Watching for file changes with StatReloader
+2026-06-05 00:34:19 INFO autoreload C:\project_new\NewsPaper\news\views.py changed, reloading.
+2026-06-05 00:34:19 INFO autoreload Watching for file changes with StatReloader
